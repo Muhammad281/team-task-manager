@@ -10,6 +10,7 @@ const authRoutes = require('./routes/auth');
 
 const app = express();
 const isProduction = process.env.NODE_ENV === 'production';
+const teamRoutes = require('./routes/teams');
 
 app.use(helmet());
 app.use(
@@ -45,6 +46,7 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/teams', teamRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err);
