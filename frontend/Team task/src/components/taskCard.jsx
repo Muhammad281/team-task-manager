@@ -4,7 +4,7 @@ const statusColors = {
   done: 'bg-green-200 text-green-800',
 }
 
-function TaskCard({ task }) {
+function TaskCard({ task, onEdit, onDelete }) {
   return (
     <div className="p-4 border rounded bg-white shadow-sm">
       <div className="flex items-start justify-between gap-2">
@@ -23,6 +23,19 @@ function TaskCard({ task }) {
       <div className="mt-3 flex flex-wrap gap-4 text-xs text-gray-500">
         <span>Assignee: {task.assignee_name || 'Unassigned'}</span>
         <span>Due: {task.due_date || 'No date'}</span>
+      </div>
+      <div className="mt-3 flex gap-2">
+        <button
+          onClick={() => onEdit(task)}
+          className="text-xs px-2 py-1 border rounded hover:bg-gray-50">
+          Edit
+        </button>
+        <button
+          onClick={() => onDelete(task.id)}
+          className="text-xs px-2 py-1 border border-red-300 text-red-600 rounded hover:bg-red-50"
+        >
+          Delete
+        </button>
       </div>
     </div>
   )

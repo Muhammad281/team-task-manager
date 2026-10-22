@@ -1,6 +1,6 @@
 import TaskCard from "./taskCard";
 
-function TaskList ({tasks}){
+function TaskList ({tasks, onEdit, onDelete}){
 
     if(tasks.lenght === 0){
         return(
@@ -11,7 +11,7 @@ function TaskList ({tasks}){
     return(
     <div className="space-y-3">
       {tasks.map((task) => (
-        <TaskCard key={task.id} task={task} />
+        <TaskCard key={task.id} task={task} onEdit={onEdit} onDelete={onDelete} />
       ))}
     </div>
     )
