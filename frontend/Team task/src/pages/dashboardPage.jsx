@@ -5,6 +5,8 @@ import TeamList from '../components/teamList'
 import CreateTeamForm from '../components/createTeamForm'
 import TaskList from '../components/taskList'
 import TaskModal from '../components/taskModal'
+import TaskFilters from '../components/taskFilter'
+import MemberManager from '../components/memberManager'
 
 function DashboardPage() {
   const [user, setUser] = useState(null)
@@ -13,6 +15,9 @@ function DashboardPage() {
   const [tasks, setTasks] = useState([])
   const [showModal, setShowModal] = useState(false)
   const [editingTask, setEditingTask] = useState(null)
+  const [filters, setFilters] = useState({ search: '', assigned_to: '', status: '' })
+  const [members, setMembers] = useState([])
+  const [myRole, setMyRole] = useState('member')
 
   async function loadTeams() {
     const res = await api.get('/teams')
@@ -29,19 +34,35 @@ function DashboardPage() {
       setTasks([])
       return
     }
-    const res = await api.get('/tasks', { params: { team_id: selectedTeamId } })
+    const params = { team_id: selectedTeamId }
+    if (filters.search) params.search = filters.search
+    if (filters.assigned_to) params.assigned_to = filters.assigned_to
+    if (filters.status) params.status = filters.status
+    const res = await api.get('/tasks', { params })
     setTasks(res.data.tasks)
   }
 
-  async function handleDeleteTask(taskId) {
-    if (!window.confirm('You want to delete this?')) return
-    await api.delete(`/tasks/${taskId}`)
-    loadTasks()
+  async function loadMembers() {
+    if (!selectedTeamId) return
+    const res = await api.get(`/teams/${selectedTeamId}`)
+    setMembers(res.data.members)
+    setMyRole(res.data.team.my_role)
   }
 
   useEffect(() => {
-    loadTasks()
+    setFilters({ search: '', assigned_to: '', status: '' })
+    loadMembers()
   }, [selectedTeamId])
+
+  useEffect(() => {
+    loadTasks()
+  }, [selectedTeamId, filters])
+
+  async function handleDeleteTask(taskId) {
+    if (!window.confirm('Is task ko delete karna hai?')) return
+    await api.delete(`/tasks/${taskId}`)
+    loadTasks()
+  }
 
   if (!user) return <p className="p-6">Loading...</p>
 
@@ -73,6 +94,16 @@ function DashboardPage() {
                   + Add New Task
                 </button>
               </div>
+              <MemberManager
+                teamId={selectedTeamId}
+                members={members}
+                myRole={myRole}
+                myId={user.id}
+                onChanged={() => {
+                  loadMembers()
+                  loadTeams()
+                }} />
+              <TaskFilters filters={filters} members={members} onChange={setFilters} />
               <TaskList tasks={tasks}
                 onEdit={(task) => {
                   setEditingTask(task)
